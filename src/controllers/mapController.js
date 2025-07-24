@@ -1,4 +1,5 @@
 const axios = require('axios');
+const Captain = require("../models/captain.model")
 
 const KRUTRIM_API_KEY = process.env.KRUTRIM_MAPS_API_KEY;
 
@@ -44,10 +45,9 @@ const getDistanceAndTime = async (req, res) => {
             geocodeAddress(origin),
             geocodeAddress(destination)
         ]);
-
-        console.log("Origin Coords:", originCoords);
-        console.log("Destination Coords:", destinationCoords);
-
+        if (!originCoords || !destinationCoords) {
+            return res.status(400).json({ error: 'Invalid origin or destination' });
+        }
 
         const originsParam = `${originCoords.lat},${originCoords.lng}`;
         const destinationsParam = `${destinationCoords.lat},${destinationCoords.lng}`;
@@ -107,9 +107,27 @@ const getAutocompleteSuggestions = async (req, res) => {
     }
 };
 
+const getCaptainsInTheRadius = async (ltd, lng, radius) => {
+
+    const captains = await Captain.find({
+        location: {
+            $geoWithin: {
+                $centerSphere: [[ltd, lng], radius / 6371]
+            }
+        }
+    });
+
+    return captains;
+
+}
+
+
+
 
 module.exports = {
     getCoordinatesFromAddress,
     getDistanceAndTime,
-    getAutocompleteSuggestions
+    getAutocompleteSuggestions,
+    geocodeAddress,
+    getCaptainsInTheRadius
 };

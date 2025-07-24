@@ -1,9 +1,12 @@
 require("dotenv").config()
+const { initializeSocket } = require("./utils/socket")
 const app = require("./app")
 const http = require("http")
 const connectDb = require("./config/db.config")
 
 const server = http.createServer(app)
+
+initializeSocket(server)
 
 connectDb().then(() => {
     server.listen(3000, () => {
