@@ -11,7 +11,11 @@ const captainSignUp = async (req, res) => {
         const captain = new Captain({ firstName, lastName, email, vehicle, password: hashedPassword })
         const saved = await captain.save()
         const token = await saved.getJWT()
-        res.cookie("Uber", token, { maxAge: 1 * 24 * 60 * 60 * 1000 }).status(200).json(saved)
+        res.cookie("Uber", token, {
+            maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        }).status(200).json(saved)
     } catch (error) {
         res.status(400).send("Error : " + error.message)
     }
@@ -29,7 +33,11 @@ const captainLogin = async (req, res) => {
             throw new Error("Invalid credentials!!")
         }
         const token = await captain.getJWT()
-        res.cookie("Uber", token, { maxAge: 1 * 24 * 60 * 60 * 1000 }).status(200).json(captain)
+        res.cookie("Uber", token, {
+            maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        }).status(200).json(captain)
     } catch (error) {
         res.status(400).send("Error : " + error.message)
     }
